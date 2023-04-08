@@ -1,5 +1,6 @@
 """Hermes MQTT server for Rhasspy wakeword with Porcupine"""
 import asyncio
+import datetime
 import io
 import logging
 import queue
@@ -259,6 +260,8 @@ class WakeHermesMqtt(HermesClient):
 
             assert site_info.porcupine is not None
 
+            myBuffer = bytearray()
+
             while True:
                 wav_bytes, is_raw = site_info.wav_queue.get()
                 if wav_bytes is None:
@@ -278,6 +281,11 @@ class WakeHermesMqtt(HermesClient):
 
                 # Add to persistent buffer
                 site_info.audio_buffer += audio_data
+
+                myBufferSize = 512 * 60
+                myBuffer += audio_data
+                if len(myBuffer) > myBufferSize:
+                    myBuffer = myBuffer[len(myBuffer) - myBufferSize:]
 
                 # Process in chunks.
                 # Any remaining audio data will be kept in buffer.
@@ -305,6 +313,11 @@ class WakeHermesMqtt(HermesClient):
                             wakeword_id = Path(self.model_ids[keyword_index]).stem
 
                         assert self.loop is not None
+
+                        myFilename = datetime.datetime.now().strftime("~/wake-%Y%m%d-%H%M%S.%f.raw")
+                        with open(myFilename, "wb") as myFile:
+                            myFile.write(myBuffer)
+
                         asyncio.run_coroutine_threadsafe(
                             self.publish_all(
                                 self.handle_detection(
