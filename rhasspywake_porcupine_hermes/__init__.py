@@ -75,6 +75,7 @@ class WakeHermesMqtt(HermesClient):
         model_ids: typing.List[str],
         wakeword_ids: typing.List[str],
         sensitivities: typing.List[float],
+        access_key: str = "",
         keyword_dirs: typing.Optional[typing.List[Path]] = None,
         site_ids: typing.Optional[typing.List[str]] = None,
         sample_rate: int = 16000,
@@ -100,6 +101,7 @@ class WakeHermesMqtt(HermesClient):
         self.wakeword_ids = wakeword_ids
         self.model_ids = model_ids
         self.sensitivities = sensitivities
+        self.access_key = access_key
 
         self.keyword_dirs = keyword_dirs or []
 
@@ -252,6 +254,7 @@ class WakeHermesMqtt(HermesClient):
                 site_info.porcupine = pvporcupine.create(
                     keyword_paths=[str(kw) for kw in self.model_ids],
                     sensitivities=self.sensitivities,
+                    access_key=self.access_key,
                 )
 
             assert site_info.porcupine is not None

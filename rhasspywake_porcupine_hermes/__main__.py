@@ -31,6 +31,12 @@ def main():
         help="Path(s) to one or more Porcupine keyword file(s) (.ppn)",
     )
     parser.add_argument(
+        "--access-key",
+        required=True,
+        action="append",
+        help="Porcupine access key",
+    )
+    parser.add_argument(
         "--keyword-dir",
         action="append",
         default=[],
@@ -173,6 +179,7 @@ def main():
         udp_forward_mqtt=args.udp_forward_mqtt,
         site_ids=args.site_id,
         lang=args.lang,
+        access_key=args.access_key[0],
     )
 
     _LOGGER.debug("Connecting to %s:%s", args.host, args.port)
